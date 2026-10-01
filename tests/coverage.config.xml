@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <CodeCoverage>
+    <EnableStaticManagedInstrumentation>False</EnableStaticManagedInstrumentation>
+    <EnableDynamicManagedInstrumentation>True</EnableDynamicManagedInstrumentation>
+    <ModulePaths>
+      <Include>
+        <ModulePath>.*TreeEditor\.(Domain|Application|Infrastructure|Api)\.dll$</ModulePath>
+      </Include>
+    </ModulePaths>
+    <Sources>
+      <Exclude>
+        <Source>.*[\\/]Migrations[\\/].*</Source>
+        <Source>.*[\\/]obj[\\/].*</Source>
+      </Exclude>
+    </Sources>
+  </CodeCoverage>
+</Configuration>

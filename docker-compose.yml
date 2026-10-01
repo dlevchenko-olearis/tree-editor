@@ -1,0 +1,49 @@
+name: tree-editor
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tree_editor}
+      POSTGRES_USER: ${POSTGRES_USER:-tree_editor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tree_editor_local}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    volumes:
+      - db-data:/var/lib/postgresql
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: src/TreeEditor.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      ConnectionStrings__TreeEditor: "Host=db;Port=5432;Database=${POSTGRES_DB:-tree_editor};Username=${POSTGRES_USER:-tree_editor};Password=${POSTGRES_PASSWORD:-tree_editor_local}"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /health HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q Healthy <&3"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db-data:

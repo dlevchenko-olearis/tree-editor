@@ -53,3 +53,19 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# .NET
+bin/
+obj/
+TestResults/
+artifacts/
+*.user
+
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local environment
+.env

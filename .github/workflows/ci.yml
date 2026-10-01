@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Restore
+        run: |
+          dotnet tool restore
+          npm ci --prefix web
+
+      - name: Test with coverage
+        run: ./scripts/coverage.sh
+
+      - name: Write the coverage summary
+        run: cat artifacts/coverage/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish the coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          badges="$RUNNER_TEMP/badges"
+          mkdir -p "$badges"
+          cp artifacts/coverage/coverage.svg "$badges/coverage.svg"
+          cd "$badges"
+          git init -q -b badges
+          git add coverage.svg
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Coverage badge for $GITHUB_SHA"
+          git push -q --force "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY.git" badges

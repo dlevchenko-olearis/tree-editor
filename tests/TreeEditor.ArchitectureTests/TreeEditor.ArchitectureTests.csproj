@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TreeEditor.Api\TreeEditor.Api.csproj" />
+    <ProjectReference Include="..\..\src\TreeEditor.Application\TreeEditor.Application.csproj" />
+    <ProjectReference Include="..\..\src\TreeEditor.Domain\TreeEditor.Domain.csproj" />
+    <ProjectReference Include="..\..\src\TreeEditor.Infrastructure\TreeEditor.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,4 @@
+services:
+  api:
+    environment:
+      Api__MutationPermitLimit: "1000000"
